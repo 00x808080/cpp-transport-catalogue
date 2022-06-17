@@ -15,10 +15,7 @@ namespace request_handler {
 // См. паттерн проектирования Фасад: https://ru.wikipedia.org/wiki/Фасад_(шаблон_проектирования)
 class RequestHandler {
 public:
-    explicit RequestHandler(const transport_guide::TransportCatalogue& db, const renderer::MapRenderer& renderer)
-        : db_(db)
-        , renderer_(renderer) {
-    }
+    explicit RequestHandler(const transport_guide::TransportCatalogue& db, const renderer::MapRenderer& renderer);
 
     // Возвращает информацию о маршруте (запрос Bus)
     [[nodiscard]] std::optional<constructions::BusStat> GetBusStat(const std::string_view &bus_name) const;

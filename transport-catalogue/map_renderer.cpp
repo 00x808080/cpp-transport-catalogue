@@ -20,7 +20,7 @@ svg::Point SphereProjector::operator()(geo::Coordinates coords) const {
 
 // ------------- MapRenderer ----------------------
 
-renderer::MapRenderer::MapRenderer(json::RenderSettings& settings, transport_guide::TransportCatalogue& db)
+renderer::MapRenderer::MapRenderer(renderer::RenderSettings& settings, transport_guide::TransportCatalogue& db)
     : settings_(settings)
     , db_(db) {
 }

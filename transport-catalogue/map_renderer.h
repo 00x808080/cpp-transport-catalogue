@@ -16,6 +16,23 @@ namespace renderer {
 inline const double EPSILON = 1e-6;
 bool IsZero(double value);
 
+struct RenderSettings {
+    RenderSettings() = default;
+
+    double width_= {};
+    double height_ = {};
+    double padding_ = {};
+    double line_width_ = {};
+    double stop_radius_ = {};
+    int bus_label_font_size_ = {};
+    svg::Point bus_label_offset_ = {};
+    int stop_label_font_size_ = {};
+    svg::Point stop_label_offset_ = {};
+    svg::Color underlayer_color_;
+    double underlayer_width_ = {};
+    std::vector<svg::Color> color_palette_;
+};
+
 class SphereProjector {
 public:
     // points_begin и points_end задают начало и конец интервала элементов geo::Coordinates
@@ -80,7 +97,7 @@ private:
 
 class MapRenderer {
 public:
-    explicit MapRenderer(json::RenderSettings& settings, transport_guide::TransportCatalogue& db);
+    explicit MapRenderer(renderer::RenderSettings& settings, transport_guide::TransportCatalogue& db);
 
     [[nodiscard]] svg::Document RenderMap() const;
 
@@ -106,7 +123,7 @@ private:
                            const std::set<std::string>& stopNames, const renderer::SphereProjector& proj) const;
 
 private:
-    const json::RenderSettings settings_;
+    const renderer::RenderSettings settings_;
     const transport_guide::TransportCatalogue& db_;
 };
 

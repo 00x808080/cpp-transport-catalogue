@@ -1,10 +1,12 @@
 #include "domain.h"
 
+#include <utility>
+
 using namespace constructions;
 using namespace std;
 
-Stop::Stop(std::string&  stop, geo::Coordinates& n_coordinates)
-        : name(std::move(stop))
+Stop::Stop(const std::string& stop, geo::Coordinates& n_coordinates)
+        : name(stop)
         , coordinates(n_coordinates) {
 }
 

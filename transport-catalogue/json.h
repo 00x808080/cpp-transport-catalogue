@@ -14,23 +14,6 @@ using Dict = std::map<std::string, Node>;
 using Array = std::vector<Node>;
 using NodeValue = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
 
-struct RenderSettings {
-    RenderSettings() = default;
-
-    double width_= {};
-    double height_ = {};
-    double padding_ = {};
-    double line_width_ = {};
-    double stop_radius_ = {};
-    int bus_label_font_size_ = {};
-    svg::Point bus_label_offset_ = {};
-    int stop_label_font_size_ = {};
-    svg::Point stop_label_offset_ = {};
-    svg::Color underlayer_color_;
-    double underlayer_width_ = {};
-    std::vector<svg::Color> color_palette_;
-};
-
 // Эта ошибка должна выбрасываться при ошибках парсинга JSON
 class ParsingError : public std::runtime_error {
 public:

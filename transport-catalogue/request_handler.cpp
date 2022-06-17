@@ -5,6 +5,11 @@ using namespace constructions;
 using namespace request_handler;
 using namespace svg;
 
+RequestHandler::RequestHandler(const transport_guide::TransportCatalogue& db, const renderer::MapRenderer& renderer)
+        : db_(db)
+        , renderer_(renderer) {
+}
+
 optional<BusStat> RequestHandler::GetBusStat(const string_view& bus_name) const {
     BusStat stat;
     if (!db_.ContainsBus(bus_name)) return nullopt;

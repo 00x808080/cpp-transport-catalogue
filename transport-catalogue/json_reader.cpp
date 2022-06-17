@@ -16,7 +16,7 @@ std::ostream& JSONReader::ReadJSON(istream &input, ostream &output, TransportCat
         ReadBaseRequests(catalogue, requests.at("base_requests"s).AsArray());
     }
 
-    json::RenderSettings renderSettings;
+    renderer::RenderSettings renderSettings;
     if (requests.count("render_settings"s)) {
         renderSettings = ReadRenderSettings(requests.at("render_settings"s).AsMap());
     }
@@ -184,8 +184,8 @@ svg::Color JSONReader::ReadColor(const json::Node& node) {
     return color;
 }
 
-json::RenderSettings JSONReader::ReadRenderSettings(const json::Dict& render) {
-    json::RenderSettings renderSettings;
+renderer::RenderSettings JSONReader::ReadRenderSettings(const json::Dict& render) {
+    renderer::RenderSettings renderSettings;
     if (render.at("width").IsInt()) renderSettings.width_ = render.at("width").AsInt();
     else renderSettings.width_ = stod(render.at("width").AsString());
 

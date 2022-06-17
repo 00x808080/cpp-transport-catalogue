@@ -26,7 +26,7 @@ private:
 
     svg::Point ReadPoint(const json::Array &arr);
     svg::Color ReadColor(const json::Node &node);
-    json::RenderSettings ReadRenderSettings(const json::Dict &render);
+    renderer::RenderSettings ReadRenderSettings(const json::Dict &render);
 };
 
 } // namespace json_reader
