@@ -10,16 +10,11 @@ namespace constructions {
 
 struct Stop {
     Stop() = default;
-
+    Stop(std::string&  stop, geo::Coordinates& n_coordinates);
     Stop(Stop&&) = default;
     Stop& operator=(Stop&&) = default;
 
     bool operator==(const Stop& right) const;
-
-    Stop(std::string&  stop, geo::Coordinates& n_coordinates)
-            : name(std::move(stop))
-            , coordinates(n_coordinates) {
-    }
 
     std::string name;
     geo::Coordinates coordinates{};

@@ -2,31 +2,16 @@
 
 #include "geo.h"
 #include "svg.h"
+#include "json.h"
+#include "domain.h"
+#include "transport_catalogue.h"
 #include <string>
 #include <vector>
-
 #include <algorithm>
 #include <cstdlib>
 #include <optional>
 
 namespace renderer {
-
-struct MapRenderer {
-    MapRenderer() = default;
-
-    double width_= {};
-    double height_ = {};
-    double padding_ = {};
-    double line_width_ = {};
-    double stop_radius_ = {};
-    int bus_label_font_size_ = {};
-    svg::Point bus_label_offset_ = {};
-    int stop_label_font_size_ = {};
-    svg::Point stop_label_offset_ = {};
-    svg::Color underlayer_color_;
-    double underlayer_width_ = {};
-    std::vector<svg::Color> color_palette_;
-};
 
 inline const double EPSILON = 1e-6;
 bool IsZero(double value);
@@ -73,29 +58,56 @@ public:
         if (width_zoom && height_zoom) {
             // Коэффициенты масштабирования по ширине и высоте ненулевые,
             // берём минимальный из них
-            zoom_coeff_ = std::min(*width_zoom, *height_zoom);
+            zoom_coefficient_ = std::min(*width_zoom, *height_zoom);
         } else if (width_zoom) {
             // Коэффициент масштабирования по ширине ненулевой, используем его
-            zoom_coeff_ = *width_zoom;
+            zoom_coefficient_ = *width_zoom;
         } else if (height_zoom) {
             // Коэффициент масштабирования по высоте ненулевой, используем его
-            zoom_coeff_ = *height_zoom;
+            zoom_coefficient_ = *height_zoom;
         }
     }
 
     // Проецирует широту и долготу в координаты внутри SVG-изображения
-    svg::Point operator()(geo::Coordinates coords) const {
-        return {
-                (coords.lng - min_lon_) * zoom_coeff_ + padding_,
-                (max_lat_ - coords.lat) * zoom_coeff_ + padding_
-        };
-    }
+    svg::Point operator()(geo::Coordinates coords) const;
 
 private:
     double padding_;
     double min_lon_ = 0;
     double max_lat_ = 0;
-    double zoom_coeff_ = 0;
+    double zoom_coefficient_ = 0;
+};
+
+class MapRenderer {
+public:
+    explicit MapRenderer(json::RenderSettings& settings, transport_guide::TransportCatalogue& db);
+
+    [[nodiscard]] svg::Document RenderMap() const;
+
+private:
+    svg::Text GenerateBusNameToText(const std::string& bus_name,
+                                    const constructions::Stop* stop,
+                                    const svg::Color& color,
+                                    const renderer::SphereProjector& proj) const;
+
+    [[nodiscard]] svg::Text GenerateUnderLayerColor (svg::Text text) const;
+    svg::Text GenerateStopNameToText(const constructions::Stop* stop, const renderer::SphereProjector& proj) const;
+
+    void AddMainStopNamesToMap(svg::Document& doc,
+            const std::set<std::string>& busNames, const renderer::SphereProjector& proj) const;
+
+    void AddLinesToMap(svg::Document& doc,
+                       const std::set<std::string>& bus_names, const renderer::SphereProjector& proj) const;
+
+    void AddDotsToMap(svg::Document& doc,
+                      const std::set<std::string>& stopNames, const renderer::SphereProjector& proj) const;
+
+    void AddStopNamesToMap(svg::Document& doc,
+                           const std::set<std::string>& stopNames, const renderer::SphereProjector& proj) const;
+
+private:
+    const json::RenderSettings settings_;
+    const transport_guide::TransportCatalogue& db_;
 };
 
 } // namespace renderer

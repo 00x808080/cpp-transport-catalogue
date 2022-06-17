@@ -212,12 +212,12 @@ Node::Node(double value)
         : value_(move(value)){
 }
 
-Node::Node(string value)
+Node::Node(const string& value)
         : value_(move(value)) {
 }
 
 bool Node::IsNull() const {
-    return holds_alternative<nullptr_t>(value_);
+    return holds_alternative<std::nullptr_t>(value_);
 }
 
 Node::Node(bool value)
@@ -317,7 +317,7 @@ const NodeValue& Node::GetValue() const {
 
 // ------------- Document ----------------------
 
-Document::Document(Node root)
+Document::Document(const Node& root)
         : root_(move(root)) {
 }
 
@@ -412,11 +412,11 @@ void PrintNode(std::ostream& out, const Dict& dict) {
     out << "\n}"s;
 }
 
-void PrintNode(std::ostream& out, const int& value) {
+void PrintNode(std::ostream& out, const int value) {
     out << value;
 }
 
-void PrintNode(std::ostream& out, const double& value) {
+void PrintNode(std::ostream& out, const double value) {
     out << value;
 }
 
@@ -433,12 +433,12 @@ void PrintNode(std::ostream& out, const std::string& str) {
     out << "\""s;
 }
 
-void PrintNode(std::ostream& out, const bool& value) {
+void PrintNode(std::ostream& out, const bool value) {
     out << std::boolalpha << value;
 }
 
 void Print(const Document& doc, std::ostream& output) {
-    visit([&output](auto value) { PrintNode(output, value); }, doc.GetRoot().GetValue());
+    visit([&output](const auto& value) { PrintNode(output, value); }, doc.GetRoot().GetValue());
 }
 
 }  // namespace json

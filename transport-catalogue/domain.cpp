@@ -3,6 +3,11 @@
 using namespace constructions;
 using namespace std;
 
+Stop::Stop(std::string&  stop, geo::Coordinates& n_coordinates)
+        : name(std::move(stop))
+        , coordinates(n_coordinates) {
+}
+
 bool constructions::Stop::operator==(const Stop &right) const {
     return name == right.name;
 }

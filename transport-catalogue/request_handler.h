@@ -21,41 +21,16 @@ public:
     }
 
     // Возвращает информацию о маршруте (запрос Bus)
-    std::optional<constructions::BusStat> GetBusStat(const std::string_view &bus_name) const;
+    [[nodiscard]] std::optional<constructions::BusStat> GetBusStat(const std::string_view &bus_name) const;
 
     // Возвращает маршруты, проходящие через
-    const std::set<std::string_view>* GetBusesByStop(const std::string_view &stop_name) const;
+    [[nodiscard]] const std::set<std::string_view>* GetBusesByStop(const std::string_view &stop_name) const;
 
-    svg::Document RenderMap() const;
+    [[nodiscard]] svg::Document RenderMap() const;
 
 private:
-    svg::Text GenerateBusNameToText(const std::string& bus_name,
-                                    const constructions::Stop* stop,
-                                    const svg::Color& color,
-                                    const renderer::SphereProjector& proj) const;
-
-    svg::Text GenerateUnderLayerColor (svg::Text text) const;
-
-    svg::Text GenerateStopNameToText(const constructions::Stop* stop, const renderer::SphereProjector& proj) const;
-
-    void AddMainStopNamesToMap(svg::Document& doc,
-                               const std::set<std::string>& busNames,
-                               const renderer::SphereProjector& proj) const;
-
-    void AddLinesToMap(svg::Document& doc,
-                       const std::set<std::string>& bus_names,
-                       const renderer::SphereProjector& proj) const;
-
-    void AddDotsToMap(svg::Document& doc,
-                      const std::set<std::string>& stopNames,
-                      const renderer::SphereProjector& proj) const;
-
-    void AddStopNamesToMap(svg::Document& doc,
-                           const std::set<std::string>& stopNames,
-                           const renderer::SphereProjector& proj) const;
-
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
-    const transport_guide::TransportCatalogue &db_;
+    const transport_guide::TransportCatalogue& db_;
     const renderer::MapRenderer& renderer_;
 };
 
