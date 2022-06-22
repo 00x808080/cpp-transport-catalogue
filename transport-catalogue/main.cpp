@@ -1,6 +1,7 @@
 #include <iostream>
-#include "transport_catalogue.h"
 #include "json_reader.h"
+
+using namespace std;
 
 int main() {
     json_reader::JSONReader reader;

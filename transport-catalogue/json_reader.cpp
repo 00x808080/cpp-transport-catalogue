@@ -11,14 +11,14 @@ using namespace json_reader;
 // Формат входных данных:
 // { "base_requests":[],"stat_requests":[] }
 std::ostream& JSONReader::ReadJSON(istream &input, ostream &output, TransportCatalogue &catalogue) {
-    json::Dict requests = json::Load(input).GetRoot().AsMap();
+    json::Dict requests = json::Load(input).GetRoot().AsDict();
     if (requests.count("base_requests"s)) {
         ReadBaseRequests(catalogue, requests.at("base_requests"s).AsArray());
     }
 
     renderer::RenderSettings renderSettings;
     if (requests.count("render_settings"s)) {
-        renderSettings = ReadRenderSettings(requests.at("render_settings"s).AsMap());
+        renderSettings = ReadRenderSettings(requests.at("render_settings"s).AsDict());
     }
 
     renderer::MapRenderer renderer(renderSettings, catalogue);
@@ -38,20 +38,27 @@ void JSONReader::ReadStopJSON(TransportCatalogue& catalogue, const json::Dict& s
     Stop stop;
     stop.name = mainStopName;
     if (stopJSON.count("latitude"s)) {
-        if (stopJSON.at("latitude"s).IsString()) {
-            stop.coordinates.lat = stod(stopJSON.at("latitude"s).AsString());
+        if (stopJSON.at("latitude"s).IsDouble()) {
+            stop.coordinates.lat = stopJSON.at("latitude"s).AsDouble();
         }
-        else stop.coordinates.lat = stopJSON.at("latitude"s).AsInt();
+        else if (stopJSON.at("latitude"s).IsInt()) {
+            stop.coordinates.lat = stopJSON.at("latitude"s).AsInt();
+        }
+        else stop.coordinates.lat = stod(stopJSON.at("latitude"s).AsString());
 
-        if (stopJSON.at("longitude"s).IsString()) {
-            stop.coordinates.lng = stod(stopJSON.at("longitude"s).AsString());
+
+        if (stopJSON.at("longitude"s).IsDouble()) {
+            stop.coordinates.lng = stopJSON.at("longitude"s).AsDouble();
         }
-        else stop.coordinates.lng = stopJSON.at("longitude"s).AsInt();
+        else if (stopJSON.at("longitude"s).IsInt()) {
+            stop.coordinates.lng = stopJSON.at("longitude"s).AsInt();
+        }
+        else stop.coordinates.lng = stod(stopJSON.at("longitude"s).AsString());
     }
     catalogue.AddStop(move(stop));
 
-    if (stopJSON.at("road_distances"s).AsMap().empty()) return;
-    for (const auto& [name, distance] : stopJSON.at("road_distances"s).AsMap()) {
+    if (stopJSON.at("road_distances"s).AsDict().empty()) return;
+        for (const auto& [name, distance] : stopJSON.at("road_distances"s).AsDict()) {
         if (!catalogue.ContainsStop(name)) {
             Stop nStop;
             nStop.name = name;
@@ -77,14 +84,14 @@ void JSONReader::ReadBaseRequests(TransportCatalogue& catalogue, const json::Arr
 
     // Считываем остановки
     for (const json::Node& stopOrBus : base) {
-        json::Dict stopJSON = stopOrBus.AsMap();
+        json::Dict stopJSON = stopOrBus.AsDict();
         if (stopJSON.at("type"s).AsString() != "Stop"s) continue;
         ReadStopJSON(catalogue, stopJSON);
     }
 
     // Cчитываем автобусы
     for (const json::Node& stopOrBus : base) {
-        json::Dict busJSON = stopOrBus.AsMap();
+        json::Dict busJSON = stopOrBus.AsDict();
         if (busJSON.at("type"s).AsString() != "Bus"s) continue;
         ReadBusJSON(catalogue, busJSON);
     }
@@ -137,7 +144,7 @@ json::Dict JSONReader::MapRequest(request_handler::RequestHandler requestHandler
 void JSONReader::PrintStatRequests(ostream& output, RequestHandler& requestHandler, const json::Array& stat) {
     json::Array result;
     for (const json::Node &request: stat) {
-        json::Dict requestJSON = request.AsMap();
+        json::Dict requestJSON = request.AsDict();
         if (requestJSON.at("type"s).AsString() == "Stop"s) {
             result.push_back(StopRequest(requestHandler, requestJSON));
         } else if (requestJSON.at("type"s).AsString() == "Bus"s) {
@@ -146,16 +153,16 @@ void JSONReader::PrintStatRequests(ostream& output, RequestHandler& requestHandl
             result.push_back(MapRequest(requestHandler, requestJSON));
         }
     }
-    json::Print(json::Document{result}, output);
+    json::Print(json::Document{json::Builder{}.Value(result).Build()}, output);
 }
 
 svg::Point JSONReader::ReadPoint(const json::Array& arr) {
     svg::Point point;
     if (arr[0].IsInt()) point.x = arr[0].AsInt();
-    else point.x = stod(arr[0].AsString());
+    else point.x = arr[0].AsDouble();
 
     if (arr[1].IsInt()) point.y = arr[1].AsInt();
-    else point.y = stod(arr[1].AsString());
+    else point.y = arr[1].AsDouble();
 
     return point;
 }
@@ -177,7 +184,7 @@ svg::Color JSONReader::ReadColor(const json::Node& node) {
             svg::Rgba rgba{static_cast<uint8_t>(arr[0].AsInt()),
                            static_cast<uint8_t>(arr[1].AsInt()),
                            static_cast<uint8_t>(arr[2].AsInt()),
-                           stod(arr[3].AsString())};
+                           arr[3].AsDouble()};
             color = rgba;
         }
     }
@@ -186,19 +193,24 @@ svg::Color JSONReader::ReadColor(const json::Node& node) {
 
 renderer::RenderSettings JSONReader::ReadRenderSettings(const json::Dict& render) {
     renderer::RenderSettings renderSettings;
-    if (render.at("width").IsInt()) renderSettings.width_ = render.at("width").AsInt();
+    if (render.at("width").IsDouble()) renderSettings.width_ = render.at("width").AsDouble();
+    else if (render.at("width").IsInt()) renderSettings.width_ = render.at("width").AsInt();
     else renderSettings.width_ = stod(render.at("width").AsString());
 
-    if (render.at("height").IsInt()) renderSettings.height_ = render.at("height").AsInt();
+    if (render.at("height").IsDouble()) renderSettings.height_ = render.at("height").AsDouble();
+    else if (render.at("height").IsInt()) renderSettings.height_ = render.at("height").AsInt();
     else renderSettings.height_ = stod(render.at("height").AsString());
 
-    if (render.at("padding").IsInt()) renderSettings.padding_ = render.at("padding").AsInt();
+    if (render.at("padding").IsDouble()) renderSettings.padding_ = render.at("padding").AsDouble();
+    else if (render.at("padding").IsInt()) renderSettings.padding_ = render.at("padding").AsInt();
     else renderSettings.padding_ = stod(render.at("padding").AsString());
 
-    if (render.at("line_width").IsInt()) renderSettings.line_width_ = render.at("line_width").AsInt();
+    if (render.at("line_width").IsDouble()) renderSettings.line_width_ = render.at("line_width").AsDouble();
+    else if (render.at("line_width").IsInt()) renderSettings.line_width_ = render.at("line_width").AsInt();
     else renderSettings.line_width_ = stod(render.at("line_width").AsString());
 
-    if (render.at("stop_radius").IsInt()) renderSettings.stop_radius_ = render.at("stop_radius").AsInt();
+    if (render.at("stop_radius").IsDouble()) renderSettings.stop_radius_ = render.at("stop_radius").AsDouble();
+    else if (render.at("stop_radius").IsInt()) renderSettings.stop_radius_ = render.at("stop_radius").AsInt();
     else renderSettings.stop_radius_ = stod(render.at("stop_radius").AsString());
 
     renderSettings.bus_label_font_size_ = render.at("bus_label_font_size").AsInt();
@@ -207,7 +219,8 @@ renderer::RenderSettings JSONReader::ReadRenderSettings(const json::Dict& render
     renderSettings.stop_label_offset_ = ReadPoint(render.at("stop_label_offset").AsArray());
     renderSettings.underlayer_color_ = ReadColor(render.at("underlayer_color"));
 
-    if (render.at("underlayer_width").IsInt()) renderSettings.underlayer_width_ = render.at("underlayer_width").AsInt();
+    if (render.at("underlayer_width").IsDouble()) renderSettings.underlayer_width_ = render.at("underlayer_width").AsDouble();
+    else if (render.at("underlayer_width").IsInt()) renderSettings.underlayer_width_ = render.at("underlayer_width").AsInt();
     else renderSettings.underlayer_width_ = stod(render.at("underlayer_width").AsString());
 
     for (const auto& colorJSON : render.at("color_palette").AsArray()) {

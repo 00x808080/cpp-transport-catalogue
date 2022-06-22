@@ -143,7 +143,8 @@ void MapRenderer::AddLinesToMap(svg::Document& doc,
 }
 
 void MapRenderer::AddDotsToMap(svg::Document& doc,
-                               const std::set<std::string>& stopNames, const renderer::SphereProjector& proj) const {
+                               const std::set<std::string>& stopNames,
+                               const renderer::SphereProjector& proj) const {
     for (const auto& name : stopNames) {
         svg::Circle circle;
         circle.SetCenter(proj(db_.FindStop(name)->coordinates));
@@ -154,7 +155,8 @@ void MapRenderer::AddDotsToMap(svg::Document& doc,
 }
 
 void MapRenderer::AddStopNamesToMap(svg::Document& doc,
-                                    const std::set<std::string>& stopNames, const renderer::SphereProjector& proj) const {
+                                    const std::set<std::string>& stopNames,
+                                    const renderer::SphereProjector& proj) const {
     for (const auto& name : stopNames) {
         Text stopName = GenerateStopNameToText(db_.FindStop(name), proj);
         Text underStopName = GenerateUnderLayerColor(stopName);
