@@ -71,6 +71,8 @@ JSON запрос:
     }
 ]
 ```
+## Пример карты
+![Map](https://github.com/sgs1320/cpp-transport-catalogue/raw/master/pictures/expamle-map.png)
 
 ## Инструкция по развертыванию
 * Version Standard С++17
