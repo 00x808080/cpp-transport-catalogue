@@ -5,9 +5,13 @@ using namespace constructions;
 using namespace request_handler;
 using namespace svg;
 
-RequestHandler::RequestHandler(const transport_guide::TransportCatalogue& db, const renderer::MapRenderer& renderer)
+
+RequestHandler::RequestHandler(const transport_guide::TransportCatalogue& db,
+                               const renderer::MapRenderer& renderer,
+                               const transport_router::TransportRouter &transportRouter)
         : db_(db)
-        , renderer_(renderer) {
+        , renderer_(renderer)
+        , transportRouter_(transportRouter) {
 }
 
 optional<BusStat> RequestHandler::GetBusStat(const string_view& bus_name) const {
@@ -42,6 +46,10 @@ optional<BusStat> RequestHandler::GetBusStat(const string_view& bus_name) const 
     return { stat };
 }
 
+std::string_view RequestHandler::GetStopNameFromId(size_t id) const {
+    return db_.GetStops()[id].name;
+}
+
 const set<string_view>* RequestHandler::GetBusesByStop(const string_view &stop_name) const {
     return db_.GetBusesByStop(stop_name);
 }
@@ -50,3 +58,19 @@ svg::Document RequestHandler::RenderMap() const {
     return renderer_.RenderMap();
 }
 
+size_t RequestHandler::BusWaitTime() const {
+    return transportRouter_.BusWaitTime();
+}
+
+const graph::Edge<double> &RequestHandler::GetEdge(size_t edge_id) const {
+    return transportRouter_.GetEdge(edge_id);
+}
+
+const transport_router::TransportRouter::EdgeInfo& RequestHandler::GetEdgeInfo(graph::EdgeId edge_id) const {
+    return transportRouter_.GetEdgeInfo(edge_id);
+}
+
+RequestHandler::OptInfo RequestHandler::BuildRouteBtwStops(std::string_view stop_name_from,
+                                                           std::string_view stop_name_to) const {
+    return transportRouter_.BuildRoute(stop_name_from, stop_name_to);
+}

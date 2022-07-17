@@ -1,4 +1,5 @@
 #include "json_reader.h"
+#include "transport_router.h"
 
 #include <deque>
 
@@ -21,8 +22,14 @@ std::ostream& JSONReader::ReadJSON(istream &input, ostream &output, TransportCat
         renderSettings = ReadRenderSettings(requests.at("render_settings"s).AsDict());
     }
 
+    transport_router::RoutingSettings routingSettings;
+    if (requests.count("routing_settings")) {
+        routingSettings = ReadRoutingSettings(requests.at("routing_settings").AsDict());
+    }
+
+    transport_router::TransportRouter transportRouter{routingSettings, catalogue};
     renderer::MapRenderer renderer(renderSettings, catalogue);
-    RequestHandler requestHandler{catalogue, renderer};
+    RequestHandler requestHandler{catalogue, renderer, transportRouter};
     if (requests.count("stat_requests"s)) {
         if (!requests.at("stat_requests"s).AsArray().empty()) {
             PrintStatRequests(output, requestHandler, requests.at("stat_requests"s).AsArray());
@@ -141,16 +148,67 @@ json::Dict JSONReader::MapRequest(request_handler::RequestHandler requestHandler
     return result;
 }
 
+json::Dict JSONReader::RouteRequest(request_handler::RequestHandler requestHandler, const json::Dict &routeRequestJSON) {
+    json::Dict result;
+    result.insert({"request_id"s, routeRequestJSON.at("id"s).AsInt()});
+
+    string stop_name_from = routeRequestJSON.at("from"s).AsString();
+    string stop_name_to = routeRequestJSON.at("to"s).AsString();
+    auto routeInfo = requestHandler.BuildRouteBtwStops(stop_name_from, stop_name_to);
+
+    if (!routeInfo.has_value()) {
+        result.insert({"error_message"s, "not found"s});
+        return result;
+    }
+
+    result.insert({"total_time"s, static_cast<double>(routeInfo.value().weight)});
+
+    json::Array arr;
+    const auto *edges = &routeInfo.value().edges;
+    for (size_t i = 0; i < edges->size(); i++) {
+        json::Dict incidence_wait;
+        json::Dict incidence_bus;
+        auto edge = requestHandler.GetEdge((*edges)[i]);
+
+        {
+            string stop_name = requestHandler.GetStopNameFromId(edge.from).data();
+            incidence_wait.insert({"stop_name"s, stop_name});
+            incidence_wait.insert({"type"s, "Wait"s});
+            incidence_wait.insert({"time"s, static_cast<int>(requestHandler.BusWaitTime())});
+        }
+
+        {
+            const auto *info = &requestHandler.GetEdgeInfo((*edges)[i]);
+            incidence_bus.insert({"type"s, "Bus"s});
+            incidence_bus.insert({"bus"s, info->bus_name.data()});
+            incidence_bus.insert({"span_count"s, info->span_count});
+            incidence_bus.insert({"time"s, edge.weight - static_cast<int>(requestHandler.BusWaitTime())});
+        }
+
+        arr.push_back(incidence_wait);
+        arr.push_back(incidence_bus);
+    }
+
+    result.insert({"items"s, arr});
+
+    return result;
+}
+
 void JSONReader::PrintStatRequests(ostream& output, RequestHandler& requestHandler, const json::Array& stat) {
     json::Array result;
     for (const json::Node &request: stat) {
         json::Dict requestJSON = request.AsDict();
         if (requestJSON.at("type"s).AsString() == "Stop"s) {
             result.push_back(StopRequest(requestHandler, requestJSON));
-        } else if (requestJSON.at("type"s).AsString() == "Bus"s) {
+        }
+        else if (requestJSON.at("type"s).AsString() == "Bus"s) {
             result.push_back(BusRequest(requestHandler, requestJSON));
-        } else if (requestJSON.at("type"s).AsString() == "Map"s) {
+        }
+        else if (requestJSON.at("type"s).AsString() == "Map"s) {
             result.push_back(MapRequest(requestHandler, requestJSON));
+        }
+        else if (requestJSON.at("type"s).AsString() == "Route"s) {
+            result.push_back(RouteRequest(requestHandler, requestJSON));
         }
     }
     json::Print(json::Document{json::Builder{}.Value(result).Build()}, output);
@@ -227,4 +285,13 @@ renderer::RenderSettings JSONReader::ReadRenderSettings(const json::Dict& render
         renderSettings.color_palette_.push_back(ReadColor(colorJSON));
     }
     return renderSettings;
+}
+
+transport_router::RoutingSettings JSONReader::ReadRoutingSettings(const json::Dict& routingSettingsJSON) {
+    transport_router::RoutingSettings routingSettings;
+
+    routingSettings.bus_wait_time = routingSettingsJSON.at("bus_wait_time").AsInt();
+    routingSettings.bus_velocity = routingSettingsJSON.at("bus_velocity").AsInt();
+
+    return routingSettings;
 }

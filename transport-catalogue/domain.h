@@ -18,6 +18,7 @@ struct Stop {
 
     std::string name;
     geo::Coordinates coordinates{};
+    int id = -1;
 };
 
 struct Bus {

@@ -7,6 +7,7 @@ using namespace constructions;
 void TransportCatalogue::AddStop(Stop &&stop) {
     string stopName = stop.name;
     if (find(stops_data_.begin(), stops_data_.end(), stop) == stops_data_.end()) {
+        stop.id = static_cast<int>(stops_data_.size());
         stops_data_.push_back(std::move(stop));
         stops_.insert({stops_data_.back().name, &stops_data_.back()});
     }

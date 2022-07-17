@@ -5,6 +5,7 @@
 #include "request_handler.h"
 #include "map_renderer.h"
 #include "json_builder.h"
+#include "transport_router.h"
 
 namespace json_reader {
 
@@ -20,6 +21,7 @@ private:
     json::Dict StopRequest(request_handler::RequestHandler requestHandler, const json::Dict &stopRequestJSON);
     json::Dict BusRequest(request_handler::RequestHandler requestHandler, const json::Dict &busRequestJSON);
     json::Dict MapRequest(request_handler::RequestHandler requestHandler, const json::Dict &mapRequestJSON);
+    json::Dict RouteRequest(request_handler::RequestHandler requestHandler, const json::Dict &routeRequestJSON);
 
     void PrintStatRequests(std::ostream &output,
                            request_handler::RequestHandler &requestHandler,
@@ -28,6 +30,8 @@ private:
     svg::Point ReadPoint(const json::Array &arr);
     svg::Color ReadColor(const json::Node &node);
     renderer::RenderSettings ReadRenderSettings(const json::Dict &render);
+
+    transport_router::RoutingSettings ReadRoutingSettings(const json::Dict& routingSettingsJSON);
 };
 
 } // namespace json_reader

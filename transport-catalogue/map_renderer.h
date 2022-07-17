@@ -124,7 +124,7 @@ private:
 
 private:
     const renderer::RenderSettings settings_;
-    const transport_guide::TransportCatalogue& db_;
+    const transport_guide::TransportCatalogue &db_;
 };
 
 } // namespace renderer
