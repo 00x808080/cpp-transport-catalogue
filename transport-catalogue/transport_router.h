@@ -19,7 +19,7 @@ struct RoutingSettings {
 
 class TransportRouter final {
 public:
-    TransportRouter(RoutingSettings routingSettings, transport_guide::TransportCatalogue &db);
+    TransportRouter(RoutingSettings routingSettings, transport_catalogue::TransportCatalogue &db);
 
 public:
     using OptInfo = std::optional<typename graph::Router<double>::RouteInfo>;
@@ -35,6 +35,8 @@ public:
     [[nodiscard]] const graph::Edge<double>& GetEdge(size_t edge_id) const;
 
     [[nodiscard]] const EdgeInfo& GetEdgeInfo(graph::EdgeId edge_id) const;
+
+    [[nodiscard]] const graph::DirectedWeightedGraph<double>& GetGraph() const;
 
     [[nodiscard]] OptInfo BuildRoute(std::string_view name_from, std::string_view name_to) const;
 
@@ -70,7 +72,7 @@ private:
 
 private:
     const RoutingSettings routingSettings_;
-    const transport_guide::TransportCatalogue &db_;
+    const transport_catalogue::TransportCatalogue &db_;
     graph::DirectedWeightedGraph<double> graph_;
     std::unique_ptr<graph::Router<double>> router_ptr_;
     std::vector<EdgeInfo> edge_id_to_info_;

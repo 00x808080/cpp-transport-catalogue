@@ -1,17 +1,18 @@
 #include "json_reader.h"
 #include "transport_router.h"
+#include "serialization.h"
 
 #include <deque>
 
 using namespace std;
-using namespace transport_guide;
+using namespace transport_catalogue;
 using namespace constructions;
 using namespace request_handler;
 using namespace json_reader;
 
 // Формат входных данных:
 // { "base_requests":[],"stat_requests":[] }
-std::ostream& JSONReader::ReadJSON(istream &input, ostream &output, TransportCatalogue &catalogue) {
+void JSONReader::MakeBase(istream &input, TransportCatalogue &catalogue) {
     json::Dict requests = json::Load(input).GetRoot().AsDict();
     if (requests.count("base_requests"s)) {
         ReadBaseRequests(catalogue, requests.at("base_requests"s).AsArray());
@@ -27,16 +28,29 @@ std::ostream& JSONReader::ReadJSON(istream &input, ostream &output, TransportCat
         routingSettings = ReadRoutingSettings(requests.at("routing_settings").AsDict());
     }
 
-    transport_router::TransportRouter transportRouter{routingSettings, catalogue};
+    serializer::Serializer serializer(catalogue, renderSettings, routingSettings);
+    const std::string file_name = requests.at("serialization_settings"s).AsDict().at("file"s).AsString();
+    serializer.SaveTo(file_name);
+}
+
+void JSONReader::ProcessRequests(istream &input, TransportCatalogue &catalogue) {
+    json::Dict requests = json::Load(input).GetRoot().AsDict();
+
+    renderer::RenderSettings renderSettings;
+    transport_router::RoutingSettings routing_settings;
+    serializer::Serializer serializer(catalogue, renderSettings, routing_settings);
+
+    const std::string file_name = requests.at("serialization_settings"s).AsDict().at("file"s).AsString();
+    serializer.DeserializeTo(file_name);
+
+    transport_router::TransportRouter transportRouter{serializer.GetRenderSettings(), catalogue};
     renderer::MapRenderer renderer(renderSettings, catalogue);
     RequestHandler requestHandler{catalogue, renderer, transportRouter};
     if (requests.count("stat_requests"s)) {
         if (!requests.at("stat_requests"s).AsArray().empty()) {
-            PrintStatRequests(output, requestHandler, requests.at("stat_requests"s).AsArray());
+            PrintStatRequests(cout, requestHandler, requests.at("stat_requests"s).AsArray());
         }
     }
-
-    return output;
 }
 
 void JSONReader::ReadStopJSON(TransportCatalogue& catalogue, const json::Dict& stopJSON) {

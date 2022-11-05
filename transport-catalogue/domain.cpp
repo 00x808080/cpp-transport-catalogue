@@ -5,8 +5,13 @@
 using namespace constructions;
 using namespace std;
 
-Stop::Stop(const std::string& stop, geo::Coordinates& n_coordinates)
-        : name(stop)
+Stop::Stop(std::string  stop, geo::Coordinates& n_coordinates)
+        : name(std::move(stop))
+        , coordinates(n_coordinates) {
+}
+
+Stop::Stop(string stop, geo::Coordinates &&n_coordinates)
+        : name(std::move(stop))
         , coordinates(n_coordinates) {
 }
 

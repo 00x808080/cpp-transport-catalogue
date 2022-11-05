@@ -19,7 +19,7 @@ class RequestHandler {
 public:
     using OptInfo = std::optional<graph::Router<double>::RouteInfo>;
 
-    explicit RequestHandler(const transport_guide::TransportCatalogue& db,
+    explicit RequestHandler(const transport_catalogue::TransportCatalogue& db,
                             const renderer::MapRenderer& renderer,
                             const transport_router::TransportRouter &transportRouter);
 
@@ -40,7 +40,7 @@ public:
 
 private:
     // RequestHandler использует агрегацию объектов "Транспортный Справочник" и "Визуализатор Карты"
-    const transport_guide::TransportCatalogue& db_;
+    const transport_catalogue::TransportCatalogue& db_;
     const renderer::MapRenderer& renderer_;
     const transport_router::TransportRouter &transportRouter_;
 };

@@ -11,12 +11,13 @@ namespace json_reader {
 
 class JSONReader {
 public:
-    std::ostream &ReadJSON(std::istream &input, std::ostream &output, transport_guide::TransportCatalogue &catalogue);
+    void MakeBase(std::istream &input, transport_catalogue::TransportCatalogue &catalogue);
+    void ProcessRequests(std::istream &input, transport_catalogue::TransportCatalogue& catalogue);
 
 private:
-    void ReadStopJSON(transport_guide::TransportCatalogue &catalogue, const json::Dict &stopJSON);
-    void ReadBusJSON(transport_guide::TransportCatalogue &catalogue, const json::Dict &busJSON);
-    void ReadBaseRequests(transport_guide::TransportCatalogue &catalogue, const json::Array &base);
+    void ReadStopJSON(transport_catalogue::TransportCatalogue &catalogue, const json::Dict &stopJSON);
+    void ReadBusJSON(transport_catalogue::TransportCatalogue &catalogue, const json::Dict &busJSON);
+    void ReadBaseRequests(transport_catalogue::TransportCatalogue &catalogue, const json::Array &base);
 
     json::Dict StopRequest(request_handler::RequestHandler requestHandler, const json::Dict &stopRequestJSON);
     json::Dict BusRequest(request_handler::RequestHandler requestHandler, const json::Dict &busRequestJSON);

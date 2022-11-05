@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace transport_guide {
+namespace transport_catalogue {
 
 class TransportCatalogue {
 public:
@@ -29,10 +29,14 @@ public:
     bool ContainsStop(const std::string_view& stop) const;
     bool ContainsBus(const std::string_view& bus) const;
 
-    int GetDistanceBtwStops(const constructions::Stop& stop1, const constructions::Stop& stop2) const;
+    double GetDistanceBtwStops(const constructions::Stop& stop1, const constructions::Stop& stop2) const;
     const std::set<std::string_view>* GetBusesByStop(const std::string_view& stop_name) const;
-    const std::deque<constructions::Stop>& GetStops() const;
-    const std::deque<constructions::Bus>& GetBuses() const;
+    const std::deque<constructions::Stop>& GetStopsData() const;
+    const std::deque<constructions::Bus>& GetBusesData() const;
+    const std::unordered_map<std::string_view, constructions::Stop*>& GetStops() const;
+    const std::unordered_map<std::string_view, constructions::Bus*>& GetBuses() const;
+    const std::unordered_map<std::pair<const constructions::Stop*, const constructions::Stop*>,
+                             int, constructions::StopDistanceHasher>& GetDistances() const;
 
 
 private:
@@ -42,8 +46,8 @@ private:
     std::unordered_map<std::string_view, constructions::Bus*> buses_routes_;
     std::unordered_map<std::string_view, std::set<std::string_view>> stop_to_buses_;
     std::unordered_map<std::pair<const constructions::Stop*, const constructions::Stop*>,
-                       int, constructions::StopDistanceHasher> stop_distance_;
+                       int, constructions::StopDistanceHasher> stops_distances_;
 };
 
-} // namespace transport_guide
+} // namespace transport_catalogue
 

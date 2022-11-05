@@ -1,7 +1,7 @@
 #include "transport_catalogue.h"
 
 using namespace std;
-using namespace transport_guide;
+using namespace transport_catalogue;
 using namespace constructions;
 
 void TransportCatalogue::AddStop(Stop &&stop) {
@@ -19,7 +19,7 @@ void TransportCatalogue::AddStop(Stop &&stop) {
 }
 
 void TransportCatalogue::AddDistance(const string& stop1, const string& stop2, int distance) {
-    stop_distance_.insert({{stops_.at(stop1), stops_.at(stop2)}, distance});
+    stops_distances_.insert({{stops_.at(stop1), stops_.at(stop2)}, distance});
 }
 
 void TransportCatalogue::AddRoute(Bus &&bus, deque<std::string> &&stops) {
@@ -54,16 +54,16 @@ bool TransportCatalogue::ContainsBus(const string_view& bus) const {
     return buses_routes_.count(bus);
 }
 
-int TransportCatalogue::GetDistanceBtwStops(const Stop &stop1, const Stop &stop2) const {
+double TransportCatalogue::GetDistanceBtwStops(const Stop &stop1, const Stop &stop2) const {
     int distance;
     // проверяем расстояние stop1 - stop2, если в базе такого расстояние нет, то проверяется stop2 - stop1
     try {
-        distance = stop_distance_.at({&stop1, &stop2});
+        distance = stops_distances_.at({&stop1, &stop2});
         return distance;
     }
     catch (std::out_of_range&) {
         try {
-            distance = stop_distance_.at({&stop2, &stop1});
+            distance = stops_distances_.at({&stop2, &stop1});
             return distance;
         }
         catch (std::out_of_range&) {
@@ -79,10 +79,23 @@ const std::set<string_view>* TransportCatalogue::GetBusesByStop(const std::strin
     return nullptr;
 }
 
-const std::deque<constructions::Stop>& TransportCatalogue::GetStops() const {
+const std::deque<constructions::Stop>& TransportCatalogue::GetStopsData() const {
     return stops_data_;
 }
 
-const std::deque<constructions::Bus>& TransportCatalogue::GetBuses() const {
+const std::deque<constructions::Bus>& TransportCatalogue::GetBusesData() const {
     return buses_data_;
+}
+
+const std::unordered_map<std::string_view, constructions::Stop *> &TransportCatalogue::GetStops() const {
+    return stops_;
+}
+
+const std::unordered_map<std::string_view, constructions::Bus *> &TransportCatalogue::GetBuses() const {
+    return buses_routes_;
+}
+
+const std::unordered_map<std::pair<const constructions::Stop *, const constructions::Stop *>,
+        int, constructions::StopDistanceHasher> &TransportCatalogue::GetDistances() const {
+    return stops_distances_;
 }

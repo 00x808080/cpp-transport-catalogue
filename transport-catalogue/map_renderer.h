@@ -97,7 +97,7 @@ private:
 
 class MapRenderer {
 public:
-    explicit MapRenderer(renderer::RenderSettings& settings, transport_guide::TransportCatalogue& db);
+    explicit MapRenderer(renderer::RenderSettings& settings, transport_catalogue::TransportCatalogue& db);
 
     [[nodiscard]] svg::Document RenderMap() const;
 
@@ -124,7 +124,7 @@ private:
 
 private:
     const renderer::RenderSettings settings_;
-    const transport_guide::TransportCatalogue &db_;
+    const transport_catalogue::TransportCatalogue &db_;
 };
 
 } // namespace renderer

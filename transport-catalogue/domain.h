@@ -10,7 +10,8 @@ namespace constructions {
 
 struct Stop {
     Stop() = default;
-    Stop(const std::string& stop, geo::Coordinates& n_coordinates);
+    Stop(std::string  stop, geo::Coordinates& n_coordinates);
+    Stop(std::string  stop, geo::Coordinates&& n_coordinates);
     Stop(Stop&&) = default;
     Stop& operator=(Stop&&) = default;
 

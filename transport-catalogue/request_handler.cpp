@@ -6,7 +6,7 @@ using namespace request_handler;
 using namespace svg;
 
 
-RequestHandler::RequestHandler(const transport_guide::TransportCatalogue& db,
+RequestHandler::RequestHandler(const transport_catalogue::TransportCatalogue& db,
                                const renderer::MapRenderer& renderer,
                                const transport_router::TransportRouter &transportRouter)
         : db_(db)
@@ -31,8 +31,8 @@ optional<BusStat> RequestHandler::GetBusStat(const string_view& bus_name) const 
     }
     stat.uniqueStopsCount = static_cast<int>(unique_stops.size());
 
-    double distance = 0;
-    double routeLength = 0;
+    double distance = 0.0;
+    double routeLength = 0.0;
     for (int i = 0; i < stat.stopsCount - 1; i++) {
         routeLength  += ComputeDistance(route.stops[i]->coordinates,
                                         route.stops[i + 1]->coordinates);
@@ -47,7 +47,7 @@ optional<BusStat> RequestHandler::GetBusStat(const string_view& bus_name) const 
 }
 
 std::string_view RequestHandler::GetStopNameFromId(size_t id) const {
-    return db_.GetStops()[id].name;
+    return db_.GetStopsData()[id].name;
 }
 
 const set<string_view>* RequestHandler::GetBusesByStop(const string_view &stop_name) const {

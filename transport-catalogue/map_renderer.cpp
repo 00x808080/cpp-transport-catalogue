@@ -20,7 +20,7 @@ svg::Point SphereProjector::operator()(geo::Coordinates coords) const {
 
 // ------------- MapRenderer ----------------------
 
-renderer::MapRenderer::MapRenderer(renderer::RenderSettings& settings, transport_guide::TransportCatalogue& db)
+renderer::MapRenderer::MapRenderer(renderer::RenderSettings& settings, transport_catalogue::TransportCatalogue& db)
     : settings_(settings)
     , db_(db) {
 }
@@ -28,7 +28,7 @@ renderer::MapRenderer::MapRenderer(renderer::RenderSettings& settings, transport
 svg::Document MapRenderer::RenderMap() const {
     set<string> stopNames;
     vector<geo::Coordinates> geo_coords;
-    for (const auto& stop : db_.GetStops()) {
+    for (const auto& stop : db_.GetStopsData()) {
         auto buses = db_.GetBusesByStop(stop.name);
         if (buses != nullptr && !buses->empty()) {
             stopNames.insert(stop.name);
@@ -36,7 +36,7 @@ svg::Document MapRenderer::RenderMap() const {
         }
     }
     set<string> busNames;
-    for (const auto& bus : db_.GetBuses()) {
+    for (const auto& bus : db_.GetBusesData()) {
         if (!bus.stops.empty()) {
             busNames.insert(bus.name);
         }
