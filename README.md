@@ -1,8 +1,20 @@
-# Транспортный справочник
-Позволяет составлять автобусные маршруты. Работа транспортного справочника осуществляется с помощью JSON запросов. Программа способна выводить информацию об автобусной остановке, маршруте и карту всех маршрутов в строку в SVG формате.
+# Transport Catalogue
 
-## Демонстрация функционала
-JSON запрос:
+The application allows users to create and manage bus routes. It operates via JSON requests and can display information about specific bus stops, routes, and a map of all routes as an SVG string.
+
+---
+
+## Features
+
+- Create and manage bus routes.
+- Retrieve information about each stop, including coordinates and distances to nearby stops.
+- Render route maps with customizable visual settings (colors, sizes, fonts).
+
+---
+
+## Functional Demo
+
+### Example JSON Request:
 ```
 {
     "base_requests": [
@@ -49,7 +61,7 @@ JSON запрос:
 }
 ```
 
-Вывод программы:
+Example output:
 ```
 [
     {
@@ -71,8 +83,8 @@ JSON запрос:
     }
 ]
 ```
-## Пример карты
+## Example map
 ![Map](https://github.com/sgs1320/cpp-transport-catalogue/blob/main/pictures/expamle-map.png)
 
-## Инструкция по развертыванию
+## Deployment Instructions
 * Version Standard С++17
